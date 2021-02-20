@@ -1,0 +1,70 @@
+POST {{authUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "min",
+  "password": "c663b11dff4be0badcf652212a2c1102"
+}
+
+> {% client.global.set("user_token",response.body.data.authority); %}
+
+###
+POST {{apiUrl}}/mine/addAccount
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "accountName": "支付宝",
+  "currency": "CNY"
+}
+
+###
+POST {{apiUrl}}/mine/getAccountList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageIndex": 1,
+  "pageSize": 10
+}
+
+###
+POST {{apiUrl}}/tradeType/addExpendClassify
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "id": 21,
+  "seniorName": "一日三餐",
+  "secondName": "晚餐"
+}
+
+###
+POST {{apiUrl}}/tradeType/addIncomeClassify
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "id": 15,
+  "seniorName": "职业收入",
+  "secondName": "奖金"
+}
+
+###
+POST {{apiUrl}}/tradeType/getClassifyList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "direction": "INCOME"
+}
+
+###
+POST {{apiUrl}}/tradeType/getClassifyBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "direction": "EXPEND"
+}
+
