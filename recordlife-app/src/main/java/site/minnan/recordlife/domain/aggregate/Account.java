@@ -54,4 +54,23 @@ public class Account {
      * 总支出
      */
     private BigDecimal expend;
+
+    /**
+     * 追加支出
+     *
+     * @param amount
+     */
+    public void addExpend(BigDecimal amount) {
+        balance = balance.subtract(amount);
+        expend = expend.add(amount);
+    }
+
+    /**
+     * 追加收入
+     * @param amount
+     */
+    public void addIncome(BigDecimal amount){
+        balance = income.subtract(amount);
+        income = income.add(amount);
+    }
 }

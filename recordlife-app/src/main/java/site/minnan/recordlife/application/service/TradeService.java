@@ -1,6 +1,10 @@
 package site.minnan.recordlife.application.service;
 
+import site.minnan.recordlife.domain.vo.ListQueryVO;
+import site.minnan.recordlife.domain.vo.trade.TradeList;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
+
+import java.util.List;
 
 /***
  * 流水相关操作
@@ -14,4 +18,10 @@ public interface TradeService {
      * @param dto
      */
     void addTrade(AddTradeDTO dto);
+
+    /**
+     * 获取流水列表
+     * @return
+     */
+    List<TradeList> getTradeList();
 }

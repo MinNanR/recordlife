@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.AccountService;
+import site.minnan.recordlife.domain.vo.account.AccountInfoVO;
 import site.minnan.recordlife.domain.vo.account.AccountVO;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
+import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.ListQueryDTO;
 import site.minnan.recordlife.userinterface.dto.account.AddAccountDTO;
+import site.minnan.recordlife.userinterface.dto.account.DeleteAccountDTO;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
 import javax.validation.Valid;
@@ -33,6 +36,20 @@ public class AccountController {
     @PostMapping("getAccountList")
     public ResponseEntity<ListQueryVO<AccountVO>> getAccountList(@RequestBody @Valid ListQueryDTO dto){
         ListQueryVO<AccountVO> vo = accountService.getAccountList(dto);
+        return ResponseEntity.success(vo);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("delAccount")
+    public ResponseEntity<?> deleteAccount(@RequestBody @Valid DeleteAccountDTO dto){
+        accountService.deleteAccount(dto);
+        return ResponseEntity.success();
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("getAccountDetail")
+    public ResponseEntity<AccountInfoVO> getAccountInfo(@RequestBody @Valid DetailsQueryDTO dto){
+        AccountInfoVO vo = accountService.getAccountInfo(dto);
         return ResponseEntity.success(vo);
     }
 }

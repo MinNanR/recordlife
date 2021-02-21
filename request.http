@@ -9,17 +9,17 @@ Content-Type: application/json
 > {% client.global.set("user_token",response.body.data.authority); %}
 
 ###
-POST {{apiUrl}}/mine/addAccount
+POST {{apiUrl}}/account/addAccount
 Content-Type: application/json
 Authorization: {{user_token}}
 
 {
-  "accountName": "支付宝",
+  "accountName": "现金",
   "currency": "CNY"
 }
 
 ###
-POST {{apiUrl}}/mine/getAccountList
+POST {{apiUrl}}/account/getAccountList
 Content-Type: application/json
 Authorization: {{user_token}}
 
@@ -34,9 +34,8 @@ Content-Type: application/json
 Authorization: {{user_token}}
 
 {
-  "id": 21,
-  "seniorName": "一日三餐",
-  "secondName": "晚餐"
+  "seniorName": "交通",
+  "secondName": "行车交通"
 }
 
 ###
@@ -45,9 +44,8 @@ Content-Type: application/json
 Authorization: {{user_token}}
 
 {
-  "id": 15,
-  "seniorName": "职业收入",
-  "secondName": "奖金"
+  "seniorName": "交通",
+  "secondName": "行车交通"
 }
 
 ###
@@ -68,3 +66,33 @@ Authorization: {{user_token}}
   "direction": "EXPEND"
 }
 
+###
+POST {{apiUrl}}/trade/addTradeRecord
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "classifyId": 28,
+  "amount": 1.5,
+  "accountName": "支付宝",
+  "accountId": 2,
+  "remarks": "单车"
+}
+
+###
+POST {{apiUrl}}/account/delAccount
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "ids": [3]
+}
+
+###
+POST {{apiUrl}}/account/getAccountDetail
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "id": 1
+}

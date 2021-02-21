@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class CheckAccountResult {
 
-    private Integer id;
+    private Integer accountId;
+
+    private String accountName;
 }

@@ -3,13 +3,16 @@ package site.minnan.recordlife.application.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import site.minnan.recordlife.application.service.UserService;
 import site.minnan.recordlife.domain.aggregate.AuthUser;
@@ -18,6 +21,7 @@ import site.minnan.recordlife.domain.mapper.UserMapper;
 import site.minnan.recordlife.domain.vo.LoginVO;
 import site.minnan.recordlife.infrastructure.utils.JwtUtil;
 import site.minnan.recordlife.infrastructure.utils.RedisUtil;
+import site.minnan.recordlife.userinterface.dto.ChangePasswordDTO;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -36,6 +40,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     /**
      * Locates the user based on the username. In the actual implementation, the search
@@ -90,5 +97,21 @@ public class UserServiceImpl implements UserService {
         Optional<AuthUser> userOptional = Optional.ofNullable(userInDB);
         userOptional.ifPresent(user -> redisUtil.valueSet("authUser::" + username, user, Duration.ofMinutes(30)));
         return userOptional;
+    }
+
+    /**
+     * 用户修改密码
+     *
+     * @param dto
+     */
+    @Override
+    public void changePassword(ChangePasswordDTO dto) {
+        String encodedPassword = encoder.encode(dto.getPassword());
+        JwtUser user = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UpdateWrapper<AuthUser> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("password", encodedPassword)
+                .eq("id", user.getId());
+        userMapper.update(null, updateWrapper);
+        redisUtil.delete("authUser::" + user.getUsername());
     }
 }
