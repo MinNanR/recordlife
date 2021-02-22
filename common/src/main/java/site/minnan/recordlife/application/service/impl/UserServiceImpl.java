@@ -41,8 +41,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private PasswordEncoder encoder;
+
 
     /**
      * Locates the user based on the username. In the actual implementation, the search
@@ -99,19 +98,4 @@ public class UserServiceImpl implements UserService {
         return userOptional;
     }
 
-    /**
-     * 用户修改密码
-     *
-     * @param dto
-     */
-    @Override
-    public void changePassword(ChangePasswordDTO dto) {
-        String encodedPassword = encoder.encode(dto.getPassword());
-        JwtUser user = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UpdateWrapper<AuthUser> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("password", encodedPassword)
-                .eq("id", user.getId());
-        userMapper.update(null, updateWrapper);
-        redisUtil.delete("authUser::" + user.getUsername());
-    }
 }

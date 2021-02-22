@@ -1,58 +1,63 @@
 package site.minnan.recordlife.domain.vo.trade;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.sql.Time;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Minnan on 2021/02/21
- */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TradeList {
 
-    private Integer id;
+    private String dayId;
 
-    private String yearTime;
-
-    private String monthTime;
-
-    private String dayTime;
-
-    private List<TradeList> monthList;
-
-    private List<TradeList> dayList;
+    @JsonFormat(pattern = "d", timezone = "GMT+08:00")
+    private Date dayTime;
 
     private List<TradeInfoVO> billList;
 
-    public static TradeList yearList(List<TradeList> monthList){
+    private String monthId;
+
+    @JsonFormat(pattern = "M", timezone = "GMT+08:00")
+    private Date monthTime;
+
+    private List<TradeList> dayList;
+
+    private String yearId;
+
+    @JsonFormat(pattern = "yyyy", timezone = "GMT+08:00")
+    private Date yearTime;
+
+    private List<TradeList> monthList;
+
+    public static TradeList dayList(Date dayTime, List<TradeInfoVO> billList) {
         TradeList tradeList = new TradeList();
-        tradeList.monthList = monthList;
-        tradeList.id = tradeList.hashCode();
+        tradeList.dayTime = dayTime;
+        tradeList.billList = CollectionUtil.sort(billList, Comparator.comparing(TradeInfoVO::getTime));
+        CollectionUtil.reverse(billList);
+        tradeList.dayId = String.valueOf(tradeList.hashCode());
         return tradeList;
     }
 
-    public static TradeList monthList(Integer month, List<TradeList> dayList){
+    public static TradeList monthList(Date monthTime, List<TradeList> dayList) {
         TradeList tradeList = new TradeList();
-        tradeList.dayList = dayList;
-        tradeList.id = tradeList.hashCode();
+        tradeList.monthTime = monthTime;
+        tradeList.dayList = CollectionUtil.sort(dayList, Comparator.comparing(TradeList::getDayTime));
+        CollectionUtil.reverse(dayList);
+        tradeList.monthId = String.valueOf(tradeList.hashCode());
         return tradeList;
     }
 
-    public static TradeList dayList(Date time, List<TradeInfoVO> billList){
+    public static TradeList yearList(Date yearTime, List<TradeList> monthList) {
         TradeList tradeList = new TradeList();
-        DateTime dateTime = DateTime.of(time);
-        tradeList.dayTime = String.valueOf(dateTime.dayOfMonth());
-        tradeList.monthTime = String.valueOf(dateTime.monthBaseOne());
-        tradeList.yearTime = String.valueOf(dateTime.year());
-        tradeList.billList = billList;
-        tradeList.id = tradeList.hashCode();
+        tradeList.yearTime = yearTime;
+        tradeList.monthList = CollectionUtil.sort(monthList, Comparator.comparing(TradeList::getMonthTime));
+        CollectionUtil.reverse(monthList);
+        tradeList.yearId = String.valueOf(tradeList.hashCode());
         return tradeList;
     }
-
 }

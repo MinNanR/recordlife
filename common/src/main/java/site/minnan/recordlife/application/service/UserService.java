@@ -14,10 +14,4 @@ public interface UserService extends UserDetailsService {
      * @return
      */
     LoginVO generateLoginVO(Authentication authentication);
-
-    /**
-     * 用户修改密码
-     * @param dto
-     */
-    void changePassword(ChangePasswordDTO dto);
 }

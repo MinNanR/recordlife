@@ -1,5 +1,7 @@
 package site.minnan.recordlife.application.service;
 
+import site.minnan.recordlife.domain.vo.account.AccountBox;
+import site.minnan.recordlife.domain.vo.account.TotalVO;
 import site.minnan.recordlife.domain.vo.account.AccountInfoVO;
 import site.minnan.recordlife.domain.vo.account.AccountVO;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
@@ -42,4 +44,16 @@ public interface AccountService {
      * @param dto
      */
     AccountInfoVO getAccountInfo(DetailsQueryDTO dto);
+
+    /**
+     * 获取总收入，总支出，总余额
+     * @return
+     */
+    TotalVO getTotalData();
+
+    /**
+     * 获取账户下拉框
+     * @return
+     */
+    ListQueryVO<AccountBox> getAccountBox();
 }

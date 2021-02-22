@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FeedBack {
+public class Feedback {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -42,7 +42,7 @@ public class FeedBack {
     /**
      * 评分
      */
-    private int score;
+    private Integer score;
 
     /**
      * 照片

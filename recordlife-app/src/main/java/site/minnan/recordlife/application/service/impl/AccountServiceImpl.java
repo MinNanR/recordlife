@@ -13,10 +13,8 @@ import site.minnan.recordlife.application.service.AccountService;
 import site.minnan.recordlife.domain.aggregate.Account;
 import site.minnan.recordlife.domain.entity.JwtUser;
 import site.minnan.recordlife.domain.mapper.AccountMapper;
-import site.minnan.recordlife.domain.vo.account.AccountInfoVO;
-import site.minnan.recordlife.domain.vo.account.AccountVO;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
-import site.minnan.recordlife.domain.vo.account.CheckAccountResult;
+import site.minnan.recordlife.domain.vo.account.*;
 import site.minnan.recordlife.infrastructure.enumerate.Currency;
 import site.minnan.recordlife.infrastructure.exception.EntityAlreadyExistException;
 import site.minnan.recordlife.infrastructure.exception.UnmodifiableException;
@@ -107,5 +105,26 @@ public class AccountServiceImpl implements AccountService {
     public AccountInfoVO getAccountInfo(DetailsQueryDTO dto) {
         Account account = accountMapper.selectById(dto.getId());
         return AccountInfoVO.assemble(account);
+    }
+
+    @Override
+    public TotalVO getTotalData() {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return accountMapper.getTotalData(jwtUser.getId());
+    }
+
+    /**
+     * 获取账户下拉框
+     *
+     * @return
+     */
+    @Override
+    public ListQueryVO<AccountBox> getAccountBox() {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        QueryWrapper<Account> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", jwtUser.getId());
+        List<Account> accounts = accountMapper.selectList(queryWrapper);
+        List<AccountBox> list = accounts.stream().map(AccountBox::assemble).collect(Collectors.toList());
+        return new ListQueryVO<>(list, null);
     }
 }

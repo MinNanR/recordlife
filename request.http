@@ -72,11 +72,11 @@ Content-Type: application/json
 Authorization: {{user_token}}
 
 {
-  "classifyId": 28,
-  "amount": 1.5,
-  "accountName": "支付宝",
-  "accountId": 2,
-  "remarks": "单车"
+  "classifyId": 22,
+  "amount": 2,
+  "accountName": "微信",
+  "accountId": 1,
+  "remarks": "早餐"
 }
 
 ###
@@ -85,7 +85,9 @@ Content-Type: application/json
 Authorization: {{user_token}}
 
 {
-  "ids": [3]
+  "ids": [
+    3
+  ]
 }
 
 ###
@@ -95,4 +97,87 @@ Authorization: {{user_token}}
 
 {
   "id": 1
+}
+
+###
+POST {{apiUrl}}/trade/getRecordData
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "initialTime": [
+    2021,
+    1
+  ],
+  "byTime": [
+    2021,
+    1
+  ]
+}
+
+###
+POST {{apiUrl}}/account/getTotalData
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/feedback/addFeedback
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "title": "反馈",
+  "reason": "原因",
+  "score": 1,
+  "imgUrl": "http://minnan.site:2000/16fd7e4c53534c868de753261025bde4.png",
+  "opinion": "意见"
+}
+
+###
+POST {{apiUrl}}/account/getAccountBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/public/getCurrencyBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/trade/getDataChart
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/trade/getBaseList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/carousel/getCarouselList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageIndex": 1,
+  "pageSize": 10
+}
+
+###
+POST {{apiUrl}}/carousel/addCarousel
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "url": "http://minnan.site:2000/16fd7e4c53534c868de753261025bde4.png"
 }
