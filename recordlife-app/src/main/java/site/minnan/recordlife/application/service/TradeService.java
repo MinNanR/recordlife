@@ -8,6 +8,7 @@ import site.minnan.recordlife.domain.vo.trade.DataChart;
 import site.minnan.recordlife.domain.vo.trade.TradeList;
 import site.minnan.recordlife.userinterface.dto.GetTradeRecordDTO;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
+import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
 
 /***
  * 流水相关操作
@@ -46,8 +47,8 @@ public interface TradeService {
 
     /**
      * (今天、本周、本月)详情查询接口
-     * @param dateField
-     * @return
+     *
+     * @param dto@return
      */
-    BaseDetail getBaseDetail(DateField dateField);
+    BaseDetail getBaseDetail(GetBaseDetailDTO dto);
 }

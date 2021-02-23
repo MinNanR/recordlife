@@ -94,7 +94,7 @@ public class ControllerExceptionHandler {
     /**
      * 处理无权限访问接口异常
      *
-     * @param ex 异常
+     * @param ex     异常
      * @param method
      * @return
      */
@@ -108,8 +108,15 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(UnmodifiableException.class)
     @ResponseBody
-    public ResponseEntity<?> handleUnmodifiableException(UnmodifiableException ex){
+    public ResponseEntity<?> handleUnmodifiableException(UnmodifiableException ex) {
         log.error("实体不可修改", ex);
+        return ResponseEntity.fail(ResponseCode.FAIL, ex.getMessage());
+    }
+
+    @ExceptionHandler(OperationNotSupportException.class)
+    @ResponseBody
+    public ResponseEntity<?> handOperationNotSupportException(OperationNotSupportException ex) {
+        log.error("操作不允许", ex);
         return ResponseEntity.fail(ResponseCode.FAIL, ex.getMessage());
     }
 

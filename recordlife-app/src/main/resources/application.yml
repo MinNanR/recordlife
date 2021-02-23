@@ -28,3 +28,8 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+aliyun:
+  bucketName: link-server
+  baseUrl: http://minnan.site:2000
+  imageFolder: recordlife/image

@@ -111,7 +111,7 @@ Authorization: {{user_token}}
   ],
   "byTime": [
     2021,
-    1
+    2
   ]
 }
 
@@ -181,3 +181,23 @@ Authorization: {{user_token}}
 {
   "url": "http://minnan.site:2000/16fd7e4c53534c868de753261025bde4.png"
 }
+
+###
+POST {{apiUrl}}/trade/getBaseDetail
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "timeMode": 5
+}
+
+###
+POST {{apiUrl}}/public/uploadFile
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: {{user_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="123.png"
+Content-Type: image/png
+< G:/logo.png
+--WebAppBoundary--

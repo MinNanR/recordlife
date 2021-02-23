@@ -11,5 +11,8 @@
 
     <artifactId>common</artifactId>
 
+    <build>
+        <defaultGoal>install</defaultGoal>
+    </build>
 
 </project>

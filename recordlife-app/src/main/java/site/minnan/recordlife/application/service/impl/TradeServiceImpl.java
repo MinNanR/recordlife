@@ -4,11 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +26,7 @@ import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
 import site.minnan.recordlife.infrastructure.utils.RedisUtil;
 import site.minnan.recordlife.userinterface.dto.GetTradeRecordDTO;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
+import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -101,28 +99,19 @@ public class TradeServiceImpl implements TradeService {
             DateTime startTime = DateUtil.parse(StrUtil.format("{}-{}", start[0], start[1]), "yyyy-M");
             DateTime endTime = DateUtil.parse(StrUtil.format("{}-{}", end[0], end[1]), "yyyy-M");
             endTime.offset(DateField.MONTH, 1);
-            List<TradeInfo> tradeInfoList = getData(startTime, endTime, user.getId());
+            List<TradeInfo> tradeInfoList = tradeMapper.getTradeInfoList(user.getId(), startTime, endTime);
 
             List<TradeList> list = tradeInfoList.stream()
                     .map(TradeInfoVO::assemble)
                     .collect(Collectors.groupingBy(e -> DateUtil.beginOfDay(e.getTime())))
                     .entrySet().stream()
-                    .map(entry -> {
-                        DateTime dayTime = DateUtil.beginOfDay(entry.getKey());
-                        return TradeList.dayList(dayTime, entry.getValue());
-                    })
+                    .map(entry -> TradeList.dayList(entry.getKey(), entry.getValue()))
                     .collect(Collectors.groupingBy(e -> DateUtil.beginOfMonth(e.getDayTime())))
                     .entrySet().stream()
-                    .map(entry -> {
-                        DateTime monthTime = DateUtil.beginOfMonth(entry.getKey());
-                        return TradeList.monthList(monthTime, entry.getValue());
-                    })
+                    .map(entry -> TradeList.monthList(entry.getKey(), entry.getValue()))
                     .collect(Collectors.groupingBy(e -> DateUtil.beginOfYear(e.getMonthTime())))
                     .entrySet().stream()
-                    .map(entry -> {
-                        DateTime yearTime = DateUtil.beginOfYear(entry.getKey());
-                        return TradeList.yearList(yearTime, entry.getValue());
-                    })
+                    .map(entry -> TradeList.yearList(entry.getKey(), entry.getValue()))
                     .collect(Collectors.toList());
             return new ListQueryVO<>(list, (long) count);
         } else {
@@ -199,14 +188,55 @@ public class TradeServiceImpl implements TradeService {
     /**
      * (今天、本周、本月)详情查询接口
      *
-     * @param dateField
+     * @param dto
      * @return
      */
     @Override
-    public BaseDetail getBaseDetail(DateField dateField) {
+    public BaseDetail getBaseDetail(GetBaseDetailDTO dto) {
         JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<TradeInfo> data = getThis(dateField, jwtUser.getId());
-        return null;
+        List<TradeInfo> data = getThis(dto.getTimeMode(), jwtUser.getId());
+        BigDecimal[] total = calculateTotal(data);
+        if (DateField.YEAR.equals(dto.getTimeMode())) {
+            List<MonthTrade> monthList = data.stream()
+                    .collect(Collectors.groupingBy(e -> DateUtil.beginOfMonth(e.getTime())))
+                    .entrySet().stream()
+                    .map(entry -> {
+                        BigDecimal[] monthTotal = calculateTotal(entry.getValue());
+                        return MonthTrade.monthList(entry.getKey(), monthTotal[0], monthTotal[1]);
+                    })
+                    .collect(Collectors.toList());
+//            BigDecimal totalIncome = monthList.stream().map(MonthTrade::getMonthIncome).reduce(BigDecimal.ZERO,
+//                    BigDecimal::add);
+//            BigDecimal totalExpend = monthList.stream().map(MonthTrade::getMonthExpend).reduce(BigDecimal.ZERO,
+//                    BigDecimal::add);
+            return BaseDetail.assemble(total[0].subtract(total[1]), monthList);
+        } else {
+            List<TradeList> monthList = data.stream()
+                    .map(TradeInfoVO::assemble)
+                    .collect(Collectors.groupingBy(e -> DateUtil.beginOfDay(e.getTime())))
+                    .entrySet().stream()
+                    .map(entry -> TradeList.dayList(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.groupingBy(e -> DateUtil.beginOfMonth(e.getDayTime())))
+                    .entrySet().stream()
+                    .map(entry -> TradeList.monthList(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+            DateTime endTime = DateTime.now();
+            DateTime startTime;
+            switch (dto.getTimeMode()) {
+                case MONTH: {
+                    startTime = DateUtil.beginOfMonth(endTime);
+                    break;
+                }
+                case DAY_OF_WEEK: {
+                    startTime = DateUtil.beginOfWeek(endTime);
+                    break;
+                }
+                default: {
+                    startTime = endTime;
+                }
+            }
+            return BaseDetail.assemble(dto.getTimeMode(), startTime, endTime, total[0], total[1], monthList);
+        }
     }
 
     /**
