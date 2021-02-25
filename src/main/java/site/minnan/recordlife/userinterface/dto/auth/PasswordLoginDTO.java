@@ -1,4 +1,4 @@
-package site.minnan.recordlife.userinterface.dto;
+package site.minnan.recordlife.userinterface.dto.auth;
 
 import lombok.Data;
 

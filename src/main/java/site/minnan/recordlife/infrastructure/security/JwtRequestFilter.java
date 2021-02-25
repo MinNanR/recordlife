@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,6 +44,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     @Qualifier(value = "userService")
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private AuthenticationManager manager;
 
     /**
      * Same contract as for {@code doFilter}, but guaranteed to be

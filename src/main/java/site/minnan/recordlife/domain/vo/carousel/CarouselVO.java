@@ -28,7 +28,7 @@ public class CarouselVO {
                 .id(carousel.getId())
                 .imageUrl(carousel.getUrl())
                 .sketch(carousel.getSketch())
-                .createTime(DateUtil.format(carousel.getCreateTime(), "yyyy-MM-dd"))
+                .createTime(DateUtil.format(carousel.getCreateTime(), "yyyy-MM-dd HH:mm"))
                 .build();
     }
 }

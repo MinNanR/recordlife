@@ -1,9 +1,12 @@
 package site.minnan.recordlife.application.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,17 +21,23 @@ import site.minnan.recordlife.application.service.UserService;
 import site.minnan.recordlife.domain.aggregate.AuthUser;
 import site.minnan.recordlife.domain.entity.JwtUser;
 import site.minnan.recordlife.domain.mapper.UserMapper;
+import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.LoginVO;
+import site.minnan.recordlife.domain.vo.auth.AdminVO;
 import site.minnan.recordlife.infrastructure.enumerate.Role;
+import site.minnan.recordlife.infrastructure.exception.EntityAlreadyExistException;
+import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
+import site.minnan.recordlife.infrastructure.exception.OperationNotSupportException;
 import site.minnan.recordlife.infrastructure.utils.JwtUtil;
 import site.minnan.recordlife.infrastructure.utils.RedisUtil;
-import site.minnan.recordlife.userinterface.dto.ChangePasswordDTO;
-import site.minnan.recordlife.userinterface.dto.PasswordLoginDTO;
+import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
+import site.minnan.recordlife.userinterface.dto.auth.*;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service("userService")
@@ -74,7 +83,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     /**
      * 生成登录token
      *
@@ -85,7 +93,9 @@ public class UserServiceImpl implements UserService {
     public LoginVO generateLoginVO(Authentication authentication) {
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         String token = jwtUtil.generateToken(jwtUser);
-        return new LoginVO(StrUtil.format("Bearer {}", token));
+        String role =
+                jwtUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
+        return new LoginVO(StrUtil.format("Bearer {}", token), role);
     }
 
     private Optional<AuthUser> getAuthUser(String username) {
@@ -138,6 +148,79 @@ public class UserServiceImpl implements UserService {
                 .eq("id", user.getId());
         userMapper.update(null, updateWrapper);
         redisUtil.delete("authUser::" + user.getUsername());
+    }
+
+    /**
+     * 添加管理员
+     *
+     * @param dto
+     */
+    @Override
+    public void addAdmin(AddAdminDTO dto) {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<AuthUser> authUser = getAuthUser(dto.getUsername());
+        if (authUser.isPresent()) {
+            throw new EntityAlreadyExistException("用户名已使用");
+        }
+        String md5Password = MD5.create().digestHex("123456");
+        AuthUser user = AuthUser.builder()
+                .username(dto.getUsername())
+                .nickName(dto.getNickName())
+                .password(encoder.encode(md5Password))
+                .enabled(AuthUser.ENABLE)
+                .role(Role.ADMIN)
+                .build();
+        user.setCreateUser(jwtUser);
+        userMapper.insert(user);
+    }
+
+    @Override
+    public ListQueryVO<AdminVO> getAdminUserList(GetAdminDTO dto) {
+        QueryWrapper<AuthUser> queryWrapper = new QueryWrapper<>();
+        Optional.ofNullable(dto.getUsername()).ifPresent(s -> queryWrapper.like("username", s));
+        queryWrapper.eq("role", Role.ADMIN);
+        Page<AuthUser> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
+        IPage<AuthUser> page = userMapper.selectPage(queryPage, queryWrapper);
+        List<AdminVO> list = page.getRecords().stream().map(AdminVO::assemble).collect(Collectors.toList());
+        return new ListQueryVO<>(list, page.getTotal());
+    }
+
+    /**
+     * 删除管理员
+     *
+     * @param dto
+     */
+    @Override
+    public void deleteAdmin(DetailsQueryDTO dto) {
+        AuthUser authUser = userMapper.selectById(dto.getId());
+        if (authUser == null) {
+            throw new EntityNotExistException("账户不存在");
+        }
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(jwtUser.getId().equals(dto.getId())){
+            throw new OperationNotSupportException("不可删除自己");
+        }
+        userMapper.deleteById(dto.getId());
+        redisUtil.delete("authUser::" + authUser.getUsername());
+    }
+
+    /**
+     * 修改其他人的密码
+     *
+     * @param dto
+     */
+    @Override
+    public void editPassword(EditPasswordDTO dto) {
+        AuthUser authUser = userMapper.selectById(dto.getId());
+        if(authUser == null){
+            throw new EntityNotExistException("用户不存在");
+        }
+        String encodedPassword = encoder.encode(dto.getNewPassword());
+        UpdateWrapper<AuthUser> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", dto.getId())
+                .set("password", encodedPassword);
+        userMapper.update(null ,updateWrapper);
+        redisUtil.delete("authUser::" + authUser.getUsername());
     }
 
     /**

@@ -49,7 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     log.error("登录异常", ex);
                     if(ex instanceof InsufficientAuthenticationException){
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "缺失用户身份");
-                    }else{
+                    }
+                    else{
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                     }
                 })

@@ -46,14 +46,9 @@ public class FileServiceImpl implements FileService {
             throw new OperationNotSupportException(StrUtil.format("格式【{}】文件不允许上传", extension));
         }
         InputStream is = file.getInputStream();
-        FileOutputStream fileOutputStream = new FileOutputStream("G:\\a.png");
-        byte[] buffer = new byte[1024];
-        while (is.read(buffer, 0, 1024) != -1){
-            fileOutputStream.write(buffer);
-        }
-        String fileName = UUID.randomUUID().toString();
+        String fileName = UUID.randomUUID().toString().replaceAll("-", "");
         String ossKey = StrUtil.format("{}/{}.{}", imageFolder, fileName, extension);
         oss.putObject(bucketName, ossKey, is);
-        return StrUtil.format("{}/{}", baseUrl, oss);
+        return StrUtil.format("{}/{}", baseUrl, ossKey);
     }
 }

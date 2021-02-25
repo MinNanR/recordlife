@@ -18,8 +18,8 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("uploadFile")
-    public ResponseEntity<?> insertImage(AddImageDTO dto) throws IOException {
-        fileService.addImage(dto);
-        return ResponseEntity.success();
+    public ResponseEntity<String> insertImage(AddImageDTO dto) throws IOException {
+        String url = fileService.addImage(dto);
+        return ResponseEntity.success(url);
     }
 }

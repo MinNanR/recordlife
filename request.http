@@ -1,0 +1,244 @@
+POST {{authUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "min",
+  "password": "c663b11dff4be0badcf652212a2c1102"
+}
+
+> {% client.global.set("user_token",response.body.data.authority); %}
+
+###
+POST {{authUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "Minnan",
+  "password": "e10adc3949ba59abbe56e057f20f883e"
+}
+
+> {% client.global.set("admin_token",response.body.data.authority); %}
+
+###
+POST {{apiUrl}}/account/addAccount
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "accountName": "现金",
+  "currency": "CNY"
+}
+
+###
+POST {{apiUrl}}/account/getAccountList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageIndex": 1,
+  "pageSize": 10
+}
+
+###
+POST {{apiUrl}}/tradeType/addExpendClassify
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "seniorName": "交通",
+  "secondName": "行车交通"
+}
+
+###
+POST {{apiUrl}}/tradeType/addIncomeClassify
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "seniorName": "交通",
+  "secondName": "行车交通"
+}
+
+###
+POST {{apiUrl}}/tradeType/getClassifyList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "direction": "INCOME"
+}
+
+###
+POST {{apiUrl}}/tradeType/getClassifyBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "direction": "EXPEND"
+}
+
+###
+POST {{apiUrl}}/trade/addTradeRecord
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "classifyId": 22,
+  "amount": 2,
+  "accountName": "微信",
+  "accountId": 1,
+  "remarks": "早餐"
+}
+
+###
+POST {{apiUrl}}/account/delAccount
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "ids": [
+    3
+  ]
+}
+
+###
+POST {{apiUrl}}/account/getAccountDetail
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "id": 1
+}
+
+###
+POST {{apiUrl}}/trade/getRecordData
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "initialTime": [
+    2021,
+    1
+  ],
+  "byTime": [
+    2021,
+    2
+  ]
+}
+
+###
+POST {{apiUrl}}/account/getTotalData
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/feedback/addFeedback
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "title": "反馈",
+  "reason": "原因",
+  "score": 1,
+  "imgUrl": "http://minnan.site:2000/16fd7e4c53534c868de753261025bde4.png",
+  "opinion": "意见"
+}
+
+###
+POST {{apiUrl}}/account/getAccountBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/public/getCurrencyBox
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/trade/getDataChart
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/trade/getBaseList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{}
+
+###
+POST {{apiUrl}}/carousel/getCarouselList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageIndex": 1,
+  "pageSize": 10
+}
+
+###
+POST {{apiUrl}}/carousel/addCarousel
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "url": "http://minnan.site:2000/16fd7e4c53534c868de753261025bde4.png"
+}
+
+###
+POST {{apiUrl}}/trade/getBaseDetail
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "timeMode": 5
+}
+
+###
+POST {{apiUrl}}/public/uploadFile
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: {{user_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="123.png"
+Content-Type: image/png
+< G:/logo.png
+--WebAppBoundary--
+
+###
+POST  {{apiUrl}}/auth/createAdministrator
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "username": "Minnan",
+  "nickName": "民难"
+}
+
+###
+POST {{apiUrl}}/auth/getAdministratorList
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 1
+}
+
+###
+POST {{apiUrl}}/auth/editorPassword
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "id": 5,
+  "newPassword":"c663b11dff4be0badcf652212a2c1102"
+}

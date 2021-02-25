@@ -64,8 +64,10 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public ListQueryVO<AccountVO> getAccountList(ListQueryDTO dto) {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         QueryWrapper<Account> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("id", "account_name", "expend", "income");
+        queryWrapper.eq("user_id", jwtUser.getId());
         Page<Account> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
         IPage<Account> page = accountMapper.selectPage(queryPage, queryWrapper);
         List<AccountVO> list = page.getRecords().stream().map(AccountVO::assemble).collect(Collectors.toList());
@@ -85,8 +87,9 @@ public class AccountServiceImpl implements AccountService {
         List<CheckAccountResult> checkResult = checkList.stream()
                 .filter(e -> ids.contains(e.getAccountId()))
                 .collect(Collectors.toList());
-        if(CollectionUtil.isNotEmpty(checkResult)){
-            String message = checkResult.stream().map(CheckAccountResult::getAccountName).collect(Collectors.joining(", "));
+        if (CollectionUtil.isNotEmpty(checkResult)) {
+            String message = checkResult.stream().map(CheckAccountResult::getAccountName).collect(Collectors.joining(
+                    ", "));
             throw new UnmodifiableException(StrUtil.format("账户【{}】已使用", message));
         }
         accountMapper.deleteBatchIds(ids);

@@ -31,6 +31,11 @@ public class AuthUser {
     private String username;
 
     /**
+     * 昵称
+     */
+    private String nickName;
+
+    /**
      * 密码
      */
     private String password;
