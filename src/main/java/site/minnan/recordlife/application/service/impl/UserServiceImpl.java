@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -79,6 +80,7 @@ public class UserServiceImpl implements UserService {
                 .password(authUser.getPassword())
                 .authorities(grantedAuthorities)
                 .enabled(authUser.getEnabled().equals(1))
+                .passwordStamp(authUser.getPasswordStamp())
                 .build();
     }
 
@@ -130,7 +132,8 @@ public class UserServiceImpl implements UserService {
                 .username(authUser.getUsername())
                 .password(authUser.getPassword())
                 .authorities(grantedAuthorities)
-                .enabled(authUser.getEnabled().equals(1))
+                .enabled(authUser.getEnabled().equals(AuthUser.ENABLE))
+                .passwordStamp(authUser.getPasswordStamp())
                 .build();
     }
 
@@ -145,6 +148,7 @@ public class UserServiceImpl implements UserService {
         JwtUser user = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UpdateWrapper<AuthUser> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("password", encodedPassword)
+                .set("password_stamp", UUID.randomUUID().toString().replaceAll("-", ""))
                 .eq("id", user.getId());
         userMapper.update(null, updateWrapper);
         redisUtil.delete("authUser::" + user.getUsername());
@@ -218,7 +222,8 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = encoder.encode(dto.getNewPassword());
         UpdateWrapper<AuthUser> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", dto.getId())
-                .set("password", encodedPassword);
+                .set("password", encodedPassword)
+                .set("password_stamp", UUID.randomUUID().toString().replaceAll("-", ""));
         userMapper.update(null ,updateWrapper);
         redisUtil.delete("authUser::" + authUser.getUsername());
     }
@@ -235,6 +240,7 @@ public class UserServiceImpl implements UserService {
                 .password(encoder.encode(dto.getPassword()))
                 .role(Role.USER)
                 .enabled(AuthUser.ENABLE)
+                .passwordStamp(UUID.randomUUID().toString().replaceAll("-", ""))
                 .build();
         userMapper.insert(newUser);
         return newUser;

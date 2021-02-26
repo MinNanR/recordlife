@@ -49,6 +49,11 @@ public class JwtUser implements UserDetails {
      */
     private String realName;
 
+    /**
+     * 密码戳
+     */
+    private String passwordStamp;
+
 
     /**
      * Indicates whether the user's account has expired. An expired account cannot be

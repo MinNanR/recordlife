@@ -70,7 +70,7 @@ public class Account {
      * @param amount
      */
     public void addIncome(BigDecimal amount){
-        balance = income.subtract(amount);
+        balance = balance.add(amount);
         income = income.add(amount);
     }
 }

@@ -2,7 +2,7 @@ POST {{authUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "min",
+  "username": "15220378779",
   "password": "c663b11dff4be0badcf652212a2c1102"
 }
 
@@ -175,14 +175,11 @@ Authorization: {{user_token}}
 {}
 
 ###
-POST {{apiUrl}}/carousel/getCarouselList
+POST {{apiUrl}}/carousel/getCarouselMap
 Content-Type: application/json
 Authorization: {{user_token}}
 
-{
-  "pageIndex": 1,
-  "pageSize": 10
-}
+{}
 
 ###
 POST {{apiUrl}}/carousel/addCarousel

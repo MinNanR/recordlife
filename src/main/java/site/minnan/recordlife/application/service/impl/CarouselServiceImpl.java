@@ -61,4 +61,19 @@ public class CarouselServiceImpl implements CarouselService {
         List<CarouselVO> list = page.getRecords().stream().map(CarouselVO::assemble).collect(Collectors.toList());
         return new ListQueryVO<>(list, page.getTotal());
     }
+
+    /**
+     * 获取小程序端展示的轮播图
+     *
+     * @return
+     */
+    @Override
+    public ListQueryVO<CarouselVO> getCarouselMap() {
+        QueryWrapper<Carousel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "url", "sketch")
+                .eq("is_show", Carousel.SHOW);
+        List<Carousel> carouselList = carouselMapper.selectList(queryWrapper);
+        List<CarouselVO> list = carouselList.stream().map(CarouselVO::assemble).collect(Collectors.toList());
+        return new ListQueryVO<>(list, null);
+    }
 }

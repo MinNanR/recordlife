@@ -53,7 +53,7 @@ public class BaseDetail {
         DateTime startTime = DateUtil.beginOfYear(endTime);
         return BaseDetail.builder()
                 .waterName(WATER_NAME_MAP.get(DateField.YEAR))
-                .waterTime(StrUtil.format("{}-{}", startTime.toString("M.d"), endTime.toString("M.D")))
+                .waterTime(StrUtil.format("{}-{}", startTime.toString("M.d"), endTime.toString("M.d")))
                 .balance(balance)
                 .monthList(monthList)
                 .build();

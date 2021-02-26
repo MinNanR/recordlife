@@ -1,6 +1,7 @@
 package site.minnan.recordlife.domain.vo.trade;
 
 import cn.hutool.core.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class TradeInfoVO {
 
     private String tradeTime;
 
+    @JsonIgnore
     private Timestamp time;
 
     private String accountName;

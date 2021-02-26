@@ -1,6 +1,7 @@
 package site.minnan.recordlife.domain.vo.carousel;
 
 import cn.hutool.core.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import site.minnan.recordlife.domain.entity.Carousel;
 @Data
 @Builder
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CarouselVO {
 
     private Integer id;

@@ -14,6 +14,7 @@ import site.minnan.recordlife.userinterface.dto.carousel.GetCarouselDTO;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/recordApplets/carousel")
@@ -33,6 +34,13 @@ public class CarouselController {
     @PostMapping("getCarouselList")
     public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselList(@RequestBody @Valid GetCarouselDTO dto){
         ListQueryVO<CarouselVO> vo = carouselService.getCarouselList(dto);
+        return ResponseEntity.success(vo);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PostMapping("getCarouselMap")
+    public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselMap(){
+        ListQueryVO<CarouselVO> vo = carouselService.getCarouselMap();
         return ResponseEntity.success(vo);
     }
 }

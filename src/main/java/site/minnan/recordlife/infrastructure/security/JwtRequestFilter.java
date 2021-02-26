@@ -76,7 +76,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 log.info("token已过期");
             }
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                JwtUser userDetails = (JwtUser) userDetailsService.loadUserByUsername(username);
                 if (jwtUtil.validateToken(jwtToken, userDetails)) {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
                             null, userDetails.getAuthorities());

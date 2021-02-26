@@ -113,9 +113,9 @@ public class TradeServiceImpl implements TradeService {
                     .entrySet().stream()
                     .map(entry -> TradeList.yearList(entry.getKey(), entry.getValue()))
                     .collect(Collectors.toList());
-            return new ListQueryVO<>(list, (long) count);
+            return new TradeQueryVO(list, (long) count, tradeInfoList.size());
         } else {
-            return new ListQueryVO<>(ListUtil.empty(), 0L);
+            return new TradeQueryVO(ListUtil.empty(), 0L, 0);
         }
     }
 
@@ -127,7 +127,7 @@ public class TradeServiceImpl implements TradeService {
     @Override
     public DataChart getDateChart() {
         JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        DateTime endTime = DateUtil.beginOfDay(DateTime.now());
+        DateTime endTime = DateUtil.endOfDay(DateTime.now());
         DateTime startTime = DateUtil.beginOfMonth(endTime.offsetNew(DateField.MONTH, -5));
         List<TradeInfo> list = getData(startTime, endTime, jwtUser.getId());
         Map<DateTime, List<TradeInfo>> groupByMonth = list.stream()
@@ -180,7 +180,9 @@ public class TradeServiceImpl implements TradeService {
         vo.setDailyInfo(dayTotal[0], dayTotal[1]);
         //查询最近一条记录
         TradeInfo recentTradeInfo = tradeMapper.getRecentTradeInfo(jwtUser.getId());
-        vo.setRecentTrade(recentTradeInfo);
+        if (recentTradeInfo != null) {
+            vo.setRecentTrade(recentTradeInfo);
+        }
         return vo;
     }
 

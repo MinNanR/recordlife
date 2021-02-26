@@ -51,6 +51,11 @@ public class AuthUser {
     private Integer enabled;
 
     /**
+     * 密码戳（比较密码版本）
+     */
+    private String passwordStamp;
+
+    /**
      * 创建时间
      */
     private Timestamp createTime;
