@@ -1,12 +1,10 @@
 package site.minnan.recordlife.application.service;
 
 import site.minnan.recordlife.domain.vo.ListQueryVO;
-import site.minnan.recordlife.domain.vo.trade.BaseDetail;
-import site.minnan.recordlife.domain.vo.trade.BaseInfoVO;
-import site.minnan.recordlife.domain.vo.trade.DataChart;
-import site.minnan.recordlife.domain.vo.trade.TradeList;
+import site.minnan.recordlife.domain.vo.trade.*;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
+import site.minnan.recordlife.userinterface.dto.trade.GetTradeListDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
 
 public interface TradeService {
@@ -46,4 +44,11 @@ public interface TradeService {
      * @param dto@return
      */
     BaseDetail getBaseDetail(GetBaseDetailDTO dto);
+
+    /**
+     * 获取流水列表（PC端显示）
+     * @param dto
+     * @return
+     */
+    ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto);
 }

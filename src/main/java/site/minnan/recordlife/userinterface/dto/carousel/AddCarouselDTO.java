@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
  */
 @Data
 public class AddCarouselDTO {
+
     @NotEmpty(message = "地址不能为空")
     private String url;
 

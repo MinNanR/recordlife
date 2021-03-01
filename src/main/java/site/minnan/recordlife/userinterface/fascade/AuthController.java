@@ -20,9 +20,11 @@ import site.minnan.recordlife.domain.entity.JwtUser;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.LoginVO;
 import site.minnan.recordlife.domain.vo.auth.AdminVO;
+import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.infrastructure.annocation.OperateLog;
 import site.minnan.recordlife.infrastructure.enumerate.Operation;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
+import site.minnan.recordlife.userinterface.dto.auth.GetAppUserDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
@@ -95,14 +97,19 @@ public class AuthController {
         return ResponseEntity.success();
     }
 
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("editorPassword")
     public ResponseEntity<?> editorPassword(@RequestBody @Valid EditPasswordDTO dto){
         userService.editPassword(dto);
         return ResponseEntity.success();
     }
 
-
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PostMapping("getAppUserList")
+    public ResponseEntity<ListQueryVO<AppUserVO>> getAppUserList(@RequestBody @Valid GetAppUserDTO dto){
+        ListQueryVO<AppUserVO> vo = userService.getAppUserList(dto);
+        return ResponseEntity.success(vo);
+    }
 
 
 }

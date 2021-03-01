@@ -1,10 +1,7 @@
 package site.minnan.recordlife.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -20,6 +17,7 @@ public class Carousel {
 
     private String sketch;
 
+    @Setter
     private Integer isShow;
 
     private Timestamp createTime;

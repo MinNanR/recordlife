@@ -10,6 +10,7 @@ import site.minnan.recordlife.application.service.CarouselService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
+import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.GetCarouselDTO;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
@@ -42,5 +43,12 @@ public class CarouselController {
     public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselMap(){
         ListQueryVO<CarouselVO> vo = carouselService.getCarouselMap();
         return ResponseEntity.success(vo);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PostMapping("editCarouselState")
+    public ResponseEntity<?> editCarouselState(@RequestBody @Valid EditCarouselStateDTO dto){
+        carouselService.editCarouselState(dto);
+        return ResponseEntity.success();
     }
 }

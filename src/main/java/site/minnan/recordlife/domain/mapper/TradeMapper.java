@@ -24,10 +24,12 @@ public interface TradeMapper extends BaseMapper<Trade> {
             "#{userId}")
     List<CheckAccountResult> getUsingAccount(@Param("userId") Integer userId);
 
-    @Select("select t1.id id, t2.name secondTypeName, t1.direction direction, t1.time time, t1.account_name " +
-            "accountName, amount amount " +
+    @Select("select t1.id id,t3.name firstTypeName, t2.name secondTypeName, t1.direction direction, t1.time time, " +
+            "t1.account_name accountName, amount amount " +
             "from record_trade t1 " +
-            "left join dim_trade_type t2 on t1.second_type_id = t2.id where t1.user_id = #{userId} and time between " +
+            "left join dim_trade_type t2 on t1.second_type_id = t2.id " +
+            "left join dim_trade_type t3 on t1.first_type_id = t3.id " +
+            "where t1.user_id = #{userId} and time between " +
             "#{start} and #{end} order by time desc")
     List<TradeInfo> getTradeInfoList(@Param("userId") Integer userId, @Param("start") Date startTime,
                                      @Param("end") Date endTime);

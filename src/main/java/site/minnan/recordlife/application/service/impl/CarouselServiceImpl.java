@@ -12,7 +12,10 @@ import site.minnan.recordlife.domain.entity.JwtUser;
 import site.minnan.recordlife.domain.mapper.CarouselMapper;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
+import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
+import site.minnan.recordlife.userinterface.dto.auth.EditPasswordDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
+import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.GetCarouselDTO;
 
 import java.sql.Timestamp;
@@ -36,7 +39,7 @@ public class CarouselServiceImpl implements CarouselService {
         JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Carousel carousel = Carousel.builder()
                 .url(dto.getUrl())
-                .isShow(Carousel.SHOW)
+                .isShow(Carousel.HIDE)
                 .sketch(dto.getSketch())
                 .createTime(new Timestamp(System.currentTimeMillis()))
                 .createUserId(jwtUser.getId())
@@ -75,5 +78,20 @@ public class CarouselServiceImpl implements CarouselService {
         List<Carousel> carouselList = carouselMapper.selectList(queryWrapper);
         List<CarouselVO> list = carouselList.stream().map(CarouselVO::assemble).collect(Collectors.toList());
         return new ListQueryVO<>(list, null);
+    }
+
+    /**
+     * 编辑轮播图是否展示
+     *
+     * @param dto
+     */
+    @Override
+    public void editCarouselState(EditCarouselStateDTO dto) {
+        Carousel carousel = carouselMapper.selectById(dto.getId());
+        if(carousel == null){
+            throw new EntityNotExistException("轮播图不存在");
+        }
+        carousel.setIsShow(dto.getIsShow());
+        carouselMapper.updateById(carousel);
     }
 }

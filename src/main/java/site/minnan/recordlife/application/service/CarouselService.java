@@ -3,7 +3,9 @@ package site.minnan.recordlife.application.service;
 import site.minnan.recordlife.domain.entity.Carousel;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
+import site.minnan.recordlife.userinterface.dto.auth.EditPasswordDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
+import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.GetCarouselDTO;
 
 /***
@@ -33,4 +35,11 @@ public interface CarouselService {
      * @return
      */
     ListQueryVO<CarouselVO> getCarouselMap();
+
+    /**
+     * 编辑轮播图是否展示
+     *
+     * @param dto
+     */
+    void editCarouselState(EditCarouselStateDTO dto);
 }

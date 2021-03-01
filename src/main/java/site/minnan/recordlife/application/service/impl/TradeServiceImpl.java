@@ -26,6 +26,7 @@ import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
 import site.minnan.recordlife.infrastructure.utils.RedisUtil;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
+import site.minnan.recordlife.userinterface.dto.trade.GetTradeListDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
 
 import java.math.BigDecimal;
@@ -239,6 +240,22 @@ public class TradeServiceImpl implements TradeService {
             }
             return BaseDetail.assemble(dto.getTimeMode(), startTime, endTime, total[0], total[1], monthList);
         }
+    }
+
+    /**
+     * 获取流水列表（PC端显示）
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto) {
+//        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        QueryWrapper<Trade> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("user_id", jwtUser.getId())
+//        tradeMapper.getTradeInfoList(jwtUser.getId(), )
+        return null;
     }
 
     /**

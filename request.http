@@ -2,7 +2,7 @@ POST {{authUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "15220378779",
+  "username": "min",
   "password": "c663b11dff4be0badcf652212a2c1102"
 }
 
@@ -238,4 +238,24 @@ Authorization: {{admin_token}}
 {
   "id": 5,
   "newPassword":"c663b11dff4be0badcf652212a2c1102"
+}
+
+###
+POST {{apiUrl}}/carousel/getCarouselList
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "pageIndex": 1,
+  "pageSize": 10
+}
+
+###
+POST {{apiUrl}}/carousel/editCarouselState
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "id": 1,
+  "isShow": 0
 }

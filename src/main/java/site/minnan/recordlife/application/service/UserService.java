@@ -6,6 +6,7 @@ import site.minnan.recordlife.domain.entity.JwtUser;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.LoginVO;
 import site.minnan.recordlife.domain.vo.auth.AdminVO;
+import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 
@@ -58,7 +59,16 @@ public interface UserService extends UserDetailsService {
 
     /**
      * 修改其他人的密码
+     *
      * @param dto
      */
     void editPassword(EditPasswordDTO dto);
+
+    /**
+     * 获取小程序用户列表
+     *
+     * @param dto
+     * @return
+     */
+    ListQueryVO<AppUserVO> getAppUserList(GetAppUserDTO dto);
 }

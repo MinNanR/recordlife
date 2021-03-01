@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.TradeService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
-import site.minnan.recordlife.domain.vo.trade.BaseDetail;
-import site.minnan.recordlife.domain.vo.trade.BaseInfoVO;
-import site.minnan.recordlife.domain.vo.trade.DataChart;
-import site.minnan.recordlife.domain.vo.trade.TradeList;
+import site.minnan.recordlife.domain.vo.trade.*;
 import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
 import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
@@ -60,4 +57,5 @@ public class TradeController {
         BaseDetail vo = tradeService.getBaseDetail(dto);
         return ResponseEntity.success(vo);
     }
+
 }

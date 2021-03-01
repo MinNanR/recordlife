@@ -24,6 +24,7 @@ import site.minnan.recordlife.domain.mapper.UserMapper;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.LoginVO;
 import site.minnan.recordlife.domain.vo.auth.AdminVO;
+import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.infrastructure.enumerate.Role;
 import site.minnan.recordlife.infrastructure.exception.EntityAlreadyExistException;
 import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
@@ -226,6 +227,22 @@ public class UserServiceImpl implements UserService {
                 .set("password_stamp", UUID.randomUUID().toString().replaceAll("-", ""));
         userMapper.update(null ,updateWrapper);
         redisUtil.delete("authUser::" + authUser.getUsername());
+    }
+
+    /**
+     * 获取小程序用户列表
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public ListQueryVO<AppUserVO> getAppUserList(GetAppUserDTO dto) {
+        QueryWrapper<AuthUser> queryWrapper = new QueryWrapper<>();
+        Optional.ofNullable(dto.getUsername()).ifPresent(s -> queryWrapper.like("username", s));
+        IPage<AuthUser> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
+        IPage<AuthUser> page = userMapper.selectPage(queryPage, queryWrapper);
+        List<AppUserVO> list = page.getRecords().stream().map(AppUserVO::assemble).collect(Collectors.toList());
+        return new ListQueryVO<>(list, page.getTotal());
     }
 
     /**
