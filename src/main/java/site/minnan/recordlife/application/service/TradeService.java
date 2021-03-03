@@ -2,10 +2,10 @@ package site.minnan.recordlife.application.service;
 
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.trade.*;
-import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetTradeListDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
+import site.minnan.recordlife.infrastructure.enumerate.TradeDirection;
+import site.minnan.recordlife.userinterface.dto.trade.*;
+
+import java.io.OutputStream;
 
 public interface TradeService {
 
@@ -50,5 +50,20 @@ public interface TradeService {
      * @param dto
      * @return
      */
-    ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto);
+    ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto, TradeDirection direction);
+
+    /**
+     * 下载流水列表（PC端）
+     * @param dto
+     * @param direction
+     * @param outputStream
+     */
+    void downloadTrade(GetTradeListDTO dto, TradeDirection direction, OutputStream outputStream);
+
+    /**
+     * 获取支出排行
+     * @param dto
+     * @return
+     */
+    ListQueryVO<RankVO> getExpendRankList(GetExpendRankDTO dto);
 }

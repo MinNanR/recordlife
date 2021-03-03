@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.CarouselService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
+import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.GetCarouselDTO;
@@ -31,7 +32,7 @@ public class CarouselController {
         return ResponseEntity.success();
     }
 
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("getCarouselList")
     public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselList(@RequestBody @Valid GetCarouselDTO dto){
         ListQueryVO<CarouselVO> vo = carouselService.getCarouselList(dto);
@@ -49,6 +50,13 @@ public class CarouselController {
     @PostMapping("editCarouselState")
     public ResponseEntity<?> editCarouselState(@RequestBody @Valid EditCarouselStateDTO dto){
         carouselService.editCarouselState(dto);
+        return ResponseEntity.success();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PostMapping("deleteCarousel")
+    public ResponseEntity<?> deleteCarousel(@RequestBody @Valid DetailsQueryDTO dto){
+        carouselService.deleteCarousel(dto);
         return ResponseEntity.success();
     }
 }

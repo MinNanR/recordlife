@@ -1,9 +1,12 @@
 package site.minnan.recordlife.application.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.aliyun.oss.OSS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.minnan.recordlife.application.service.CarouselService;
@@ -13,6 +16,7 @@ import site.minnan.recordlife.domain.mapper.CarouselMapper;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
 import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
+import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.auth.EditPasswordDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
@@ -28,6 +32,18 @@ public class CarouselServiceImpl implements CarouselService {
 
     @Autowired
     private CarouselMapper carouselMapper;
+
+    @Value("${aliyun.bucketName}")
+    private String bucketName;
+
+    @Value("${aliyun.baseUrl}")
+    private String baseUrl;
+
+    @Value("${aliyun.imageFolder}")
+    private String imageFolder;
+
+    @Autowired
+    private OSS oss;
 
     /**
      * 添加轮播图
@@ -93,5 +109,22 @@ public class CarouselServiceImpl implements CarouselService {
         }
         carousel.setIsShow(dto.getIsShow());
         carouselMapper.updateById(carousel);
+    }
+
+    /**
+     * 删除轮播图
+     *
+     * @param dto
+     */
+    @Override
+    public void deleteCarousel(DetailsQueryDTO dto) {
+        Carousel carousel = carouselMapper.selectById(dto.getId());
+        if (carousel == null) {
+            throw new EntityNotExistException("轮播图不存在");
+        }
+        carouselMapper.deleteById(dto.getId());
+        String url = carousel.getUrl();
+        String key = StrUtil.subAfter(url, baseUrl, false);
+        oss.deleteObject(bucketName, key);
     }
 }

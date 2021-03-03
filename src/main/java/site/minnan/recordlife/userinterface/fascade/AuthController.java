@@ -1,5 +1,7 @@
 package site.minnan.recordlife.userinterface.fascade;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,13 @@ import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.infrastructure.annocation.OperateLog;
 import site.minnan.recordlife.infrastructure.enumerate.Operation;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
-import site.minnan.recordlife.userinterface.dto.auth.GetAppUserDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -111,5 +115,27 @@ public class AuthController {
         return ResponseEntity.success(vo);
     }
 
-
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PostMapping("downloadAppUserMessage")
+    public void downloadAppUser(@RequestBody GetAppUserDTO dto, HttpServletResponse response){
+        ServletOutputStream outputStream = null;
+        try {
+            String time = DateUtil.format(DateTime.now(), "yyyyMMddHHmmss");
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("multipart/form-data");
+            response.setHeader("Content-Disposition", "attachment;fileName=" + time + ".csv");
+            outputStream = response.getOutputStream();
+            userService.downloadAppUser(dto, outputStream);
+        } catch (IOException e) {
+            log.error("下载小程序用户IO异常", e);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    log.error("下载小程序用户关闭输出流异常", e);
+                }
+            }
+        }
+    }
 }

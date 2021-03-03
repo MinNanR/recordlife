@@ -25,8 +25,11 @@ public class AppUserVO {
         return AppUserVO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .createTime(DateUtil.format(user.getCreateTime(), "yyyy-MM-dd HH:mm:ss"))
-                .updateTime(DateUtil.format(user.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"))
+                .createTime(DateUtil.formatDateTime(user.getCreateTime()))
                 .build();
+    }
+
+    public String[] getFileInfo(int ordinal){
+        return new String[]{String.valueOf(ordinal), username, createTime, updateTime};
     }
 }

@@ -2,7 +2,7 @@ POST {{authUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "min",
+  "username": "15220378779",
   "password": "c663b11dff4be0badcf652212a2c1102"
 }
 
@@ -122,7 +122,7 @@ Authorization: {{user_token}}
   ],
   "byTime": [
     2021,
-    2
+    3
   ]
 }
 
@@ -237,7 +237,7 @@ Authorization: {{admin_token}}
 
 {
   "id": 5,
-  "newPassword":"c663b11dff4be0badcf652212a2c1102"
+  "newPassword": "c663b11dff4be0badcf652212a2c1102"
 }
 
 ###
@@ -258,4 +258,76 @@ Authorization: {{admin_token}}
 {
   "id": 1,
   "isShow": 0
+}
+
+###
+POST {{apiUrl}}/trade/getExpendReportList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 1,
+  "timeBegin": "2021-01-01",
+  "timeEnd": "2021-03-03"
+}
+
+###
+POST {{apiUrl}}/trade/getIncomeReportList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 1,
+  "timeBegin": "2021-01-01",
+  "timeEnd": "2021-03-03",
+  "accountId": 12,
+  "seniorTypeId": 57
+}
+
+###
+POST {{apiUrl}}/trade/getExpendRankList
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "timeBegin": "2021-01-01",
+  "timeEnd": "2021-03-03"
+}
+
+###
+POST {{apiUrl}}/log/getLogOperation
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{}
+
+###
+POST {{apiUrl}}/log/getLogList
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 1
+}
+
+###
+POST {{apiUrl}}/auth/getAppUserList
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 1
+}
+
+###
+POST {{apiUrl}}/carousel/deleteCarousel
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "id": 1
 }

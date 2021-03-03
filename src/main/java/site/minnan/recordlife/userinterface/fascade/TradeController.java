@@ -1,5 +1,8 @@
 package site.minnan.recordlife.userinterface.fascade;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,13 +12,16 @@ import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.TradeService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.trade.*;
-import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
+import site.minnan.recordlife.infrastructure.enumerate.TradeDirection;
+import site.minnan.recordlife.userinterface.dto.trade.*;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
+@Slf4j
 @RestController
 @RequestMapping("/recordApplets/trade")
 public class TradeController {
@@ -58,4 +64,72 @@ public class TradeController {
         return ResponseEntity.success(vo);
     }
 
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("getExpendReportList")
+    public ResponseEntity<ListQueryVO<TradeVO>> getExpendReportList(@RequestBody @Valid GetTradeListDTO dto) {
+        ListQueryVO<TradeVO> vo = tradeService.getTradeList(dto, TradeDirection.EXPEND);
+        return ResponseEntity.success(vo);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("getIncomeReportList")
+    public ResponseEntity<ListQueryVO<TradeVO>> getIncomeReportList(@RequestBody @Valid GetTradeListDTO dto) {
+        ListQueryVO<TradeVO> vo = tradeService.getTradeList(dto, TradeDirection.INCOME);
+        return ResponseEntity.success(vo);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("downloadIncome")
+    public void downloadIncome(@RequestBody GetTradeListDTO dto, HttpServletResponse response) {
+        ServletOutputStream outputStream = null;
+        try {
+            String time = DateUtil.format(DateTime.now(), "yyyyMMddHHmmss");
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("multipart/form-data");
+            response.setHeader("Content-Disposition", "attachment;fileName=" + time + ".csv");
+            outputStream = response.getOutputStream();
+            tradeService.downloadTrade(dto, TradeDirection.INCOME, outputStream);
+        } catch (IOException e) {
+            log.error("下载收入列表IO异常", e);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    log.error("下载收入列表关闭输出流异常", e);
+                }
+            }
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("downloadExpend")
+    public void downloadExpend(@RequestBody GetTradeListDTO dto, HttpServletResponse response) {
+        ServletOutputStream outputStream = null;
+        try {
+            String time = DateUtil.format(DateTime.now(), "yyyyMMddHHmmss");
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("multipart/form-data");
+            response.setHeader("Content-Disposition", "attachment;fileName=" + time + ".csv");
+            outputStream = response.getOutputStream();
+            tradeService.downloadTrade(dto, TradeDirection.EXPEND, outputStream);
+        } catch (IOException e) {
+            log.error("下载支出列表IO异常", e);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    log.error("下载支出列表关闭输出流异常", e);
+                }
+            }
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("getExpendRankList")
+    public ResponseEntity<ListQueryVO<RankVO>> getExpendRank(@RequestBody @Valid GetExpendRankDTO dto){
+        ListQueryVO<RankVO> vo = tradeService.getExpendRankList(dto);
+        return ResponseEntity.success(vo);
+    }
 }

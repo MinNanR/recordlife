@@ -1,5 +1,7 @@
 package site.minnan.recordlife.application.service.impl;
 
+import cn.hutool.core.text.csv.CsvUtil;
+import cn.hutool.core.text.csv.CsvWriter;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONObject;
@@ -34,6 +36,8 @@ import site.minnan.recordlife.infrastructure.utils.RedisUtil;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -202,7 +206,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotExistException("账户不存在");
         }
         JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(jwtUser.getId().equals(dto.getId())){
+        if (jwtUser.getId().equals(dto.getId())) {
             throw new OperationNotSupportException("不可删除自己");
         }
         userMapper.deleteById(dto.getId());
@@ -217,7 +221,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void editPassword(EditPasswordDTO dto) {
         AuthUser authUser = userMapper.selectById(dto.getId());
-        if(authUser == null){
+        if (authUser == null) {
             throw new EntityNotExistException("用户不存在");
         }
         String encodedPassword = encoder.encode(dto.getNewPassword());
@@ -225,7 +229,7 @@ public class UserServiceImpl implements UserService {
         updateWrapper.eq("id", dto.getId())
                 .set("password", encodedPassword)
                 .set("password_stamp", UUID.randomUUID().toString().replaceAll("-", ""));
-        userMapper.update(null ,updateWrapper);
+        userMapper.update(null, updateWrapper);
         redisUtil.delete("authUser::" + authUser.getUsername());
     }
 
@@ -242,7 +246,37 @@ public class UserServiceImpl implements UserService {
         IPage<AuthUser> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
         IPage<AuthUser> page = userMapper.selectPage(queryPage, queryWrapper);
         List<AppUserVO> list = page.getRecords().stream().map(AppUserVO::assemble).collect(Collectors.toList());
+        list.forEach(e -> {
+            String time = (String) redisUtil.getValue("lastOperation::" + e.getUsername());
+            e.setUpdateTime(time);
+        });
         return new ListQueryVO<>(list, page.getTotal());
+    }
+
+    /**
+     * 下载小程序用户
+     *
+     * @param dto
+     * @param outputStream
+     */
+    @Override
+    public void downloadAppUser(GetAppUserDTO dto, OutputStream outputStream) {
+        QueryWrapper<AuthUser> queryWrapper = new QueryWrapper<>();
+        Optional.ofNullable(dto.getUsername()).ifPresent(s -> queryWrapper.like("username", s));
+        List<AuthUser> page = userMapper.selectList(queryWrapper);
+        List<AppUserVO> result = page.stream().map(AppUserVO::assemble).collect(Collectors.toList());
+        result.forEach(e -> {
+            String time = (String) redisUtil.getValue("lastOperation::" + e.getUsername());
+            e.setUpdateTime(time);
+        });
+        CsvWriter writer = CsvUtil.getWriter(new OutputStreamWriter(outputStream));
+        writer.write(new String[]{"序号","账号","创建时间", "更新时间"});
+        int ordinal = 1;
+        for (AppUserVO vo : result) {
+            String[] line = vo.getFileInfo(ordinal);
+            writer.write(line);
+            ordinal++;
+        }
     }
 
     /**

@@ -22,4 +22,6 @@ public class GetTradeListDTO extends ListQueryDTO {
     private Integer accountId;
 
     private Integer seniorTypeId;
+
+    private String direction;
 }

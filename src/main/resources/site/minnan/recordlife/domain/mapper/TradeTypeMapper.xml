@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="site.minnan.recordlife.domain.mapper.TradeTypeMapper">
+
+    <!--    获取分类信息-->
+    <select id="getTradeDetails" resultType="site.minnan.recordlife.domain.entity.TradeType">
+        select t1.id id, t2.name parentName, t1.name name
+        from dim_trade_type t1
+        left join dim_trade_type t2 on t1.parent_id = t2.id
+        where t1.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

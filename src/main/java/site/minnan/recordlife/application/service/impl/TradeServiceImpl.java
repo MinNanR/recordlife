@@ -1,17 +1,27 @@
 package site.minnan.recordlife.application.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.csv.CsvUtil;
+import cn.hutool.core.text.csv.CsvWriter;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.minnan.recordlife.application.provider.AccountProviderService;
+import site.minnan.recordlife.application.provider.TradeTypeProviderService;
 import site.minnan.recordlife.application.service.TradeService;
 import site.minnan.recordlife.domain.aggregate.Trade;
 import site.minnan.recordlife.domain.entity.JwtUser;
@@ -24,17 +34,15 @@ import site.minnan.recordlife.domain.vo.trade.*;
 import site.minnan.recordlife.infrastructure.enumerate.TradeDirection;
 import site.minnan.recordlife.infrastructure.exception.EntityNotExistException;
 import site.minnan.recordlife.infrastructure.utils.RedisUtil;
-import site.minnan.recordlife.userinterface.dto.trade.AddTradeDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetBaseDetailDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetTradeListDTO;
-import site.minnan.recordlife.userinterface.dto.trade.GetTradeRecordDTO;
+import site.minnan.recordlife.userinterface.dto.trade.*;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +56,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private AccountProviderService accountProviderService;
+
+    @Autowired
+    private TradeTypeProviderService tradeTypeProviderService;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -92,13 +103,15 @@ public class TradeServiceImpl implements TradeService {
     public ListQueryVO<TradeList> getTradeList(GetTradeRecordDTO dto) {
         JwtUser user = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         QueryWrapper<Trade> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", user.getId());
+        Integer[] start = dto.getInitialTime();
+        Integer[] end = dto.getByTime();
+        DateTime startTime = DateUtil.parse(StrUtil.format("{}-{}", start[0], start[1]), "yyyy-M");
+        DateTime endTime =
+                DateUtil.parse(StrUtil.format("{}-{}", end[0], end[1]), "yyyy-M").offsetNew(DateField.MONTH, 1);
+        queryWrapper.eq("user_id", user.getId())
+                .between("time", startTime, endTime);
         Integer count = tradeMapper.selectCount(queryWrapper);
         if (count > 0) {
-            Integer[] start = dto.getInitialTime();
-            Integer[] end = dto.getByTime();
-            DateTime startTime = DateUtil.parse(StrUtil.format("{}-{}", start[0], start[1]), "yyyy-M");
-            DateTime endTime = DateUtil.parse(StrUtil.format("{}-{}", end[0], end[1]), "yyyy-M");
             endTime.offset(DateField.MONTH, 1);
             List<TradeInfo> tradeInfoList = tradeMapper.getTradeInfoList(user.getId(), startTime, endTime);
 
@@ -249,13 +262,126 @@ public class TradeServiceImpl implements TradeService {
      * @return
      */
     @Override
-    public ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto) {
-//        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        QueryWrapper<Trade> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("user_id", jwtUser.getId())
-//        tradeMapper.getTradeInfoList(jwtUser.getId(), )
-        return null;
+    public ListQueryVO<TradeVO> getTradeList(GetTradeListDTO dto, TradeDirection direction) {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        DateTime startTime = DateUtil.beginOfDay(DateUtil.parseDate(dto.getTimeBegin()));
+        DateTime endTime = DateUtil.endOfDay(DateUtil.parseDate(dto.getTimeEnd()));
+        QueryWrapper<Trade> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", jwtUser.getId())
+                .eq("direction", direction)
+                .between("time", startTime, endTime);
+        Optional.ofNullable(dto.getAccountId()).ifPresent(s -> queryWrapper.eq("account_id", s));
+        Optional.ofNullable(dto.getSeniorTypeId()).ifPresent(s -> queryWrapper.eq("first_type_id", s));
+        Page<Trade> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
+        IPage<Trade> page = tradeMapper.selectPage(queryPage, queryWrapper);
+        List<Trade> records = page.getRecords();
+        if (records.size() > 0) {
+            Set<Integer> secondTypeIds = records.stream().map(Trade::getSecondTypeId).collect(Collectors.toSet());
+            Map<Integer, TradeType> detailsMap = tradeTypeProviderService.getTradeTypeDetails(secondTypeIds);
+            List<TradeVO> list = records.stream()
+                    .map(e -> {
+//                        TradeInfo tradeInfo = new TradeInfo();
+//                        BeanUtil.copyProperties(e, tradeInfo,false);
+//                        return tradeInfo;
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        ;
+                        try {
+                            String s = objectMapper.writeValueAsString(e);
+                            return objectMapper.readValue(s, TradeInfo.class);
+                        } catch (JsonProcessingException jsonProcessingException) {
+                            return new TradeInfo();
+                        }
+                    })
+                    .peek(e -> e.setTradeType(detailsMap.get(e.getSecondTypeId())))
+                    .map(TradeVO::assemble)
+                    .collect(Collectors.toList());
+            return new ListQueryVO<>(list, page.getTotal());
+        } else {
+            return new ListQueryVO<>(ListUtil.empty(), page.getTotal());
+        }
+    }
+
+    /**
+     * 下载流水列表（PC端）
+     *
+     * @param dto
+     * @param direction
+     * @param outputStream
+     */
+    @Override
+    public void downloadTrade(GetTradeListDTO dto, TradeDirection direction, OutputStream outputStream) {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        DateTime startTime = DateUtil.beginOfDay(DateUtil.parseDate(dto.getTimeBegin()));
+        DateTime endTime = DateUtil.endOfDay(DateUtil.parseDate(dto.getTimeEnd()));
+        QueryWrapper<Trade> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", jwtUser.getId())
+                .eq("direction", direction)
+                .between("time", startTime, endTime);
+        Optional.ofNullable(dto.getAccountId()).ifPresent(s -> queryWrapper.eq("account_id", s));
+        Optional.ofNullable(dto.getSeniorTypeId()).ifPresent(s -> queryWrapper.eq("first_type_id", s));
+        List<Trade> records = tradeMapper.selectList(queryWrapper);
+        CsvWriter writer = CsvUtil.getWriter(new OutputStreamWriter(outputStream));
+        writer.write(new String[]{"序号", "日期", "一级分类", "二级分类", "账户", "金额"});
+        if (records.size() > 0) {
+            Set<Integer> secondTypeIds = records.stream().map(Trade::getSecondTypeId).collect(Collectors.toSet());
+            Map<Integer, TradeType> detailsMap = tradeTypeProviderService.getTradeTypeDetails(secondTypeIds);
+            List<TradeVO> list = records.stream()
+                    .map(e -> {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        ;
+                        try {
+                            String s = objectMapper.writeValueAsString(e);
+                            return objectMapper.readValue(s, TradeInfo.class);
+                        } catch (JsonProcessingException jsonProcessingException) {
+                            return new TradeInfo();
+                        }
+                    })
+                    .peek(e -> e.setTradeType(detailsMap.get(e.getSecondTypeId())))
+                    .map(TradeVO::assemble)
+                    .collect(Collectors.toList());
+            int ordinal = 1;
+            for (TradeVO vo : list) {
+                String[] line = vo.getFileInfo(ordinal);
+                writer.write(line);
+                ordinal++;
+            }
+        }
+    }
+
+
+    /**
+     * 获取支出排行
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public ListQueryVO<RankVO> getExpendRankList(GetExpendRankDTO dto) {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        DateTime startTime = DateUtil.beginOfDay(DateUtil.parseDate(dto.getTimeBegin()));
+        DateTime endTime = DateUtil.endOfDay(DateUtil.parseDate(dto.getTimeEnd()));
+        List<TradeInfo> tradeList = tradeMapper.getTradeInfoListByDirection(jwtUser.getId(), startTime, endTime,
+                TradeDirection.EXPEND);
+        Iterator<Integer> rankIterator = CollectionUtil.newArrayList(1, 2, 3, 4, 5, 6, 7).iterator();
+        List<RankVO> list = tradeList.stream().collect(Collectors.groupingBy(TradeInfo::getFirstTypeId))
+                .entrySet().stream()
+                .map(entry -> {
+                    BigDecimal total = entry.getValue().stream().map(Trade::getAmount).reduce(BigDecimal.ZERO,
+                            BigDecimal::add);
+                    return RankVO.of(entry.getKey(), entry.getValue().get(0).getFirstTypeName(), total);
+                })
+                .sorted(Comparator.comparing(RankVO::getExpendAmount).reversed())
+                .limit(7)
+                .peek(e -> e.setRankNum(rankIterator.next()))
+                .collect(Collectors.toList());
+//        List<RankVO> list = CollectionUtil.sortByEntry(groupByTypeName, (e1, e2) -> e2.getValue().compareTo(e1
+//        .getValue()))
+//                .entrySet()
+//                .stream()
+//                .limit(7)
+//                .map(entry -> RankVO.of(rankIterator.next(), entry.getKey(), entry.getValue()))
+//                .collect(Collectors.toList());
+        return new ListQueryVO<>(list, null);
     }
 
     /**

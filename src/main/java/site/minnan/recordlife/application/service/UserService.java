@@ -10,6 +10,8 @@ import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 
+import java.io.OutputStream;
+
 public interface UserService extends UserDetailsService {
 
     /**
@@ -71,4 +73,11 @@ public interface UserService extends UserDetailsService {
      * @return
      */
     ListQueryVO<AppUserVO> getAppUserList(GetAppUserDTO dto);
+
+    /**
+     * 下载小程序用户
+     *
+     * @param dto
+     */
+    void downloadAppUser(GetAppUserDTO dto, OutputStream outputStream);
 }
