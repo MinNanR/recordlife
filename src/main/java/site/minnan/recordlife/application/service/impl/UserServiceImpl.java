@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public JwtUser getUser(PasswordLoginDTO dto) {
+    public JwtUser getUser(AppLoginDTO dto) {
         Optional<AuthUser> userOptional = getAuthUser(dto.getUsername());
         AuthUser authUser = userOptional.orElseGet(() -> createAuthUser(dto));
         String roleName = authUser.getRole().getValue();
@@ -285,7 +285,7 @@ public class UserServiceImpl implements UserService {
      * @param dto
      * @return
      */
-    private AuthUser createAuthUser(PasswordLoginDTO dto) {
+    private AuthUser createAuthUser(AppLoginDTO dto) {
         AuthUser newUser = AuthUser.builder()
                 .username(dto.getUsername())
                 .password(encoder.encode(dto.getPassword()))

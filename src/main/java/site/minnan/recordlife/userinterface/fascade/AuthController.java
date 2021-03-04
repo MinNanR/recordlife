@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,7 @@ import site.minnan.recordlife.domain.vo.auth.AdminVO;
 import site.minnan.recordlife.domain.vo.auth.AppUserVO;
 import site.minnan.recordlife.infrastructure.annocation.OperateLog;
 import site.minnan.recordlife.infrastructure.enumerate.Operation;
+import site.minnan.recordlife.infrastructure.enumerate.Role;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.auth.*;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
@@ -46,13 +49,59 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @OperateLog(operation = Operation.LOGIN, module = "系统登录", content = "登录成功")
+    // TODO: 2021/3/4 下版本删除
     @PostMapping("login")
-    public ResponseEntity<LoginVO> loginPassword(@RequestBody @Valid PasswordLoginDTO dto) throws AuthenticationException {
+    public ResponseEntity<LoginVO> appLogin(@RequestBody @Valid AppLoginDTO dto) throws AuthenticationException {
         log.info("用户登录，登录信息：{}", new JSONObject(dto));
         Authentication authentication;
         try {
             JwtUser jwtUser = userService.getUser(dto);
+            String role =
+                    jwtUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
+            if(!Role.USER.getValue().equals(role)){
+                throw new AccessDeniedException("无权限访问");
+            }
+            authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(),
+                    dto.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (DisabledException e) {
+            throw new DisabledException("用户被禁用", e);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("用户名或密码错误", e);
+        }
+        LoginVO vo = userService.generateLoginVO(authentication);
+        return ResponseEntity.success(vo);
+    }
+
+    @PostMapping("login/app")
+    public ResponseEntity<LoginVO> appLogin1(@RequestBody @Valid AppLoginDTO dto) throws AuthenticationException {
+        log.info("用户登录，登录信息：{}", new JSONObject(dto));
+        Authentication authentication;
+        try {
+            JwtUser jwtUser = userService.getUser(dto);
+            String role =
+                    jwtUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
+            if(!Role.USER.getValue().equals(role)){
+                throw new AccessDeniedException("无权限访问");
+            }
+            authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(),
+                    dto.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (DisabledException e) {
+            throw new DisabledException("用户被禁用", e);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("用户名或密码错误", e);
+        }
+        LoginVO vo = userService.generateLoginVO(authentication);
+        return ResponseEntity.success(vo);
+    }
+
+    @OperateLog(operation = Operation.LOGIN, module = "系统登录", content = "登录成功")
+    @PostMapping("login/pc")
+    public ResponseEntity<LoginVO> pcLogin(@RequestBody @Valid PasswordLoginDTO dto) throws AuthenticationException {
+        log.info("用户登录，登录信息：{}", new JSONObject(dto));
+        Authentication authentication;
+        try {
             authentication = manager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(),
                     dto.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);

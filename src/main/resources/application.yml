@@ -17,7 +17,7 @@ server:
 jwt:
   route:
     authentication:
-      path: /recordApplets/auth/login
+      path: /recordApplets/auth/login,/recordApplets/auth/login/*
   header: Authorization
   expiration: 604800
   scret: czHao

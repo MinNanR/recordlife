@@ -9,7 +9,7 @@ Content-Type: application/json
 > {% client.global.set("user_token",response.body.data.authority); %}
 
 ###
-POST {{authUrl}}/auth/login
+POST {{authUrl}}/auth/login/pc
 Content-Type: application/json
 
 {
@@ -216,7 +216,7 @@ Content-Type: application/json
 Authorization: {{admin_token}}
 
 {
-  "username": "Minnan",
+  "username": "17328483960",
   "nickName": "民难"
 }
 
@@ -316,7 +316,7 @@ Authorization: {{admin_token}}
 ###
 POST {{apiUrl}}/auth/getAppUserList
 Content-Type: application/json
-Authorization: {{admin_token}}
+Authorization: {{user_token}}
 
 {
   "pageSize": 10,

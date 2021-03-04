@@ -28,7 +28,7 @@ public interface UserService extends UserDetailsService {
      * @param dto
      * @return
      */
-    JwtUser getUser(PasswordLoginDTO dto);
+    JwtUser getUser(AppLoginDTO dto);
 
     /**
      * 用户修改密码
