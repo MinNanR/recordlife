@@ -176,6 +176,7 @@ public class UserServiceImpl implements UserService {
                 .username(dto.getUsername())
                 .nickName(dto.getNickName())
                 .password(encoder.encode(md5Password))
+                .passwordStamp(UUID.randomUUID().toString().replaceAll("-", ""))
                 .enabled(AuthUser.ENABLE)
                 .role(Role.ADMIN)
                 .build();

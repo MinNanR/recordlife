@@ -13,7 +13,7 @@ POST {{authUrl}}/auth/login/pc
 Content-Type: application/json
 
 {
-  "username": "Minnan",
+  "username": "Zeao",
   "password": "e10adc3949ba59abbe56e057f20f883e"
 }
 
@@ -331,3 +331,10 @@ Authorization: {{admin_token}}
 {
   "id": 1
 }
+
+###
+POST {{apiUrl}}/auth/logout
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{}
