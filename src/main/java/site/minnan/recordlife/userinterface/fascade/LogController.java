@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.LogService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.log.LogVO;
+import site.minnan.recordlife.infrastructure.annocation.OperateLog;
 import site.minnan.recordlife.infrastructure.enumerate.Operation;
 import site.minnan.recordlife.infrastructure.enumerate.TradeDirection;
 import site.minnan.recordlife.userinterface.dto.log.GetLogListDTO;
@@ -57,6 +58,8 @@ public class LogController {
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.DOWNLOAD, module = "日志", content = "下载日志")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("downloadLog")
     public void downloadLog(@RequestBody GetLogListDTO dto, HttpServletResponse response){
         ServletOutputStream outputStream = null;

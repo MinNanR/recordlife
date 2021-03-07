@@ -294,6 +294,8 @@ public class UserServiceImpl implements UserService {
                 .enabled(AuthUser.ENABLE)
                 .passwordStamp(UUID.randomUUID().toString().replaceAll("-", ""))
                 .build();
+        JwtUser user = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        newUser.setCreateUser(user);
         userMapper.insert(newUser);
         return newUser;
     }

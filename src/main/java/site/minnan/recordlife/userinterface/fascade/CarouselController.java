@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.CarouselService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.carousel.CarouselVO;
+import site.minnan.recordlife.infrastructure.annocation.OperateLog;
+import site.minnan.recordlife.infrastructure.enumerate.Operation;
 import site.minnan.recordlife.userinterface.dto.DetailsQueryDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.AddCarouselDTO;
 import site.minnan.recordlife.userinterface.dto.carousel.EditCarouselStateDTO;
@@ -25,37 +27,40 @@ public class CarouselController {
     @Autowired
     private CarouselService carouselService;
 
+    @OperateLog(operation = Operation.ADD, module = "轮播图", content = "添加轮播图")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("addCarousel")
-    public ResponseEntity<?> addCarousel(@RequestBody @Valid AddCarouselDTO dto){
+    public ResponseEntity<?> addCarousel(@RequestBody @Valid AddCarouselDTO dto) {
         carouselService.addCarousel(dto);
         return ResponseEntity.success();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("getCarouselList")
-    public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselList(@RequestBody @Valid GetCarouselDTO dto){
+    public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselList(@RequestBody @Valid GetCarouselDTO dto) {
         ListQueryVO<CarouselVO> vo = carouselService.getCarouselList(dto);
         return ResponseEntity.success(vo);
     }
 
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     @PostMapping("getCarouselMap")
-    public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselMap(){
+    public ResponseEntity<ListQueryVO<CarouselVO>> getCarouselMap() {
         ListQueryVO<CarouselVO> vo = carouselService.getCarouselMap();
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.UPDATE, module = "轮播图", content = "修改轮播图")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("editCarouselState")
-    public ResponseEntity<?> editCarouselState(@RequestBody @Valid EditCarouselStateDTO dto){
+    public ResponseEntity<?> editCarouselState(@RequestBody @Valid EditCarouselStateDTO dto) {
         carouselService.editCarouselState(dto);
         return ResponseEntity.success();
     }
 
+    @OperateLog(operation = Operation.DELETE, module = "轮播图", content = "删除轮播图")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("deleteCarousel")
-    public ResponseEntity<?> deleteCarousel(@RequestBody @Valid DetailsQueryDTO dto){
+    public ResponseEntity<?> deleteCarousel(@RequestBody @Valid DetailsQueryDTO dto) {
         carouselService.deleteCarousel(dto);
         return ResponseEntity.success();
     }

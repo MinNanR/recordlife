@@ -114,6 +114,7 @@ public class AuthController {
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.UPDATE, module = "系统用户管理",content = "修改密码")
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("editPassword")
     public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDTO dto){
@@ -143,6 +144,7 @@ public class AuthController {
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.DELETE, module = "系统用户管理", content = "删除管理员")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("deleteAdministrator")
     public ResponseEntity<?> deleteAdmin(@RequestBody @Valid DetailsQueryDTO dto){
@@ -150,6 +152,7 @@ public class AuthController {
         return ResponseEntity.success();
     }
 
+    @OperateLog(operation =Operation.UPDATE, module = "系统用户管理", content = "修改密码")
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("editorPassword")
     public ResponseEntity<?> editorPassword(@RequestBody @Valid EditPasswordDTO dto){
@@ -164,6 +167,7 @@ public class AuthController {
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.DOWNLOAD, module = "系统用户管理", content = "下载小程序用户列表")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("downloadAppUserMessage")
     public void downloadAppUser(@RequestBody GetAppUserDTO dto, HttpServletResponse response){

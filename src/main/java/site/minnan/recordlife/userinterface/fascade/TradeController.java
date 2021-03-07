@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import site.minnan.recordlife.application.service.TradeService;
 import site.minnan.recordlife.domain.vo.ListQueryVO;
 import site.minnan.recordlife.domain.vo.trade.*;
+import site.minnan.recordlife.infrastructure.annocation.OperateLog;
+import site.minnan.recordlife.infrastructure.enumerate.Operation;
 import site.minnan.recordlife.infrastructure.enumerate.TradeDirection;
 import site.minnan.recordlife.userinterface.dto.trade.*;
 import site.minnan.recordlife.userinterface.response.ResponseEntity;
@@ -78,6 +80,7 @@ public class TradeController {
         return ResponseEntity.success(vo);
     }
 
+    @OperateLog(operation = Operation.DOWNLOAD, module = "流水", content = "下载收入记录")
     @PreAuthorize("hasAnyAuthority('USER')")
     @PostMapping("downloadIncome")
     public void downloadIncome(@RequestBody GetTradeListDTO dto, HttpServletResponse response) {
@@ -102,6 +105,7 @@ public class TradeController {
         }
     }
 
+    @OperateLog(operation = Operation.DOWNLOAD, module = "流水", content = "下载支出记录")
     @PreAuthorize("hasAnyAuthority('USER')")
     @PostMapping("downloadExpend")
     public void downloadExpend(@RequestBody GetTradeListDTO dto, HttpServletResponse response) {
@@ -128,7 +132,7 @@ public class TradeController {
 
     @PreAuthorize("hasAnyAuthority('USER')")
     @PostMapping("getExpendRankList")
-    public ResponseEntity<ListQueryVO<RankVO>> getExpendRank(@RequestBody @Valid GetExpendRankDTO dto){
+    public ResponseEntity<ListQueryVO<RankVO>> getExpendRank(@RequestBody @Valid GetExpendRankDTO dto) {
         ListQueryVO<RankVO> vo = tradeService.getExpendRankList(dto);
         return ResponseEntity.success(vo);
     }

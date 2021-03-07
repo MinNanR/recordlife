@@ -216,7 +216,7 @@ Content-Type: application/json
 Authorization: {{admin_token}}
 
 {
-  "username": "17328483960",
+  "username": "Minnan",
   "nickName": "民难"
 }
 
