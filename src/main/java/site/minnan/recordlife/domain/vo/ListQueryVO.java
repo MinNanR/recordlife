@@ -24,5 +24,5 @@ public class ListQueryVO<T> {
     /**
      * 总数量
      */
-    Long totalCount;
+    Number totalCount;
 }

@@ -17,4 +17,8 @@ public class ListQueryDTO {
 
     @NotNull(message = "显示数量不能为空")
     private Integer pageSize;
+
+    public Integer getStart() {
+        return (pageIndex - 1) * pageSize;
+    }
 }

@@ -150,9 +150,10 @@ public class RedisUtil {
     /**
      * 获取一个hash类型上的所有hash键及其值
      * @param key 键名
+     * @param clazz
      * @return key-value形式返回hash类型上的所有值
      */
-    public <T> Map<String, T> getHash(String key){
+    public <T> Map<String, T> getHash(String key, Class<T> clazz){
         return (Map<String, T>) redisTemplate.opsForHash().entries(key);
     }
 
@@ -165,7 +166,7 @@ public class RedisUtil {
     public <T> T getBeanFromHash(String key, Class<T> clazz){
         try {
             T bean = clazz.newInstance();
-            Map<String, Object> objectMap = getHash(key);
+            Map<String, T> objectMap = (Map<String, T>) redisTemplate.opsForHash().entries(key);
             BeanMap.create(bean).putAll(objectMap);
             return bean;
         } catch (InstantiationException | IllegalAccessException e) {

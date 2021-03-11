@@ -10,7 +10,29 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum  Currency {
 
 
-    CNY("CNY", "人民币");
+    CNY("CNY", "人民币"),
+    USD("USD", "美元"),
+    EUR("EUR","欧元"),
+    HKD("HKD","港币"),
+    JPY("JPY", "日元"),
+    GBP("GBP","英镑"),
+    AUD("AUD","澳大利亚元"),
+    CAD("CAD","加拿大元"),
+    THB("THB","泰国铢"),
+    SGD("SGD","新加坡元"),
+    CHF("CHF","瑞士法郎"),
+    DKK("DKK","丹麦克朗"),
+    MOP("MOP","澳门元"),
+    MYR("MYR","林吉特"),
+    NOK("NOK","挪威克朗"),
+    NZD("NZD","新西兰元"),
+    PHP("PHP","菲律宾比索"),
+    RUB("RUB","卢布"),
+    SEK("SEK","瑞典克朗"),
+    TWD("TWD","新台币"),
+    BRL("BRL","巴西雷亚尔"),
+    KRW("KRW","韩国元"),
+    ZAR("ZAR","南非兰特");
 
     Currency(String code, String name){
         this.currencyCode = code;

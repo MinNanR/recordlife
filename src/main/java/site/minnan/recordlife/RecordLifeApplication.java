@@ -5,11 +5,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @MapperScan("site.minnan.rental.domain.mapper")
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableScheduling
 public class RecordLifeApplication {
 
     public static void main(String[] args) {

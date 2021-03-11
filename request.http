@@ -1,12 +1,12 @@
-POST {{authUrl}}/auth/login
+POST {{authUrl}}/auth/login/pc
 Content-Type: application/json
 
 {
-  "username": "15220378779",
-  "password": "c663b11dff4be0badcf652212a2c1102"
+  "username": "Minnan",
+  "password": "e10adc3949ba59abbe56e057f20f883e"
 }
 
-> {% client.global.set("user_token",response.body.data.authority); %}
+> {% client.global.set("admin_token",response.body.data.authority); %}
 
 ###
 POST {{authUrl}}/auth/login/pc
@@ -338,3 +338,13 @@ Content-Type: application/json
 Authorization: {{admin_token}}
 
 {}
+
+###
+POST {{apiUrl}}/currency/getCurrencyList
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "pageSize": 10,
+  "pageIndex": 2
+}

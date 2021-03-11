@@ -23,6 +23,8 @@ public class CarouselVO {
 
     private String sketch;
 
+    private Integer isShow;
+
     private String createTime;
 
     public static CarouselVO assemble(Carousel carousel){
@@ -30,6 +32,7 @@ public class CarouselVO {
                 .id(carousel.getId())
                 .imageUrl(carousel.getUrl())
                 .sketch(carousel.getSketch())
+                .isShow(carousel.getIsShow())
                 .createTime(DateUtil.format(carousel.getCreateTime(), "yyyy-MM-dd HH:mm"))
                 .build();
     }
