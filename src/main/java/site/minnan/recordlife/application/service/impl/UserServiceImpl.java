@@ -244,6 +244,7 @@ public class UserServiceImpl implements UserService {
     public ListQueryVO<AppUserVO> getAppUserList(GetAppUserDTO dto) {
         QueryWrapper<AuthUser> queryWrapper = new QueryWrapper<>();
         Optional.ofNullable(dto.getUsername()).ifPresent(s -> queryWrapper.like("username", s));
+        queryWrapper.eq("role", Role.USER);
         IPage<AuthUser> queryPage = new Page<>(dto.getPageIndex(), dto.getPageSize());
         IPage<AuthUser> page = userMapper.selectPage(queryPage, queryWrapper);
         List<AppUserVO> list = page.getRecords().stream().map(AppUserVO::assemble).collect(Collectors.toList());
@@ -264,6 +265,7 @@ public class UserServiceImpl implements UserService {
     public void downloadAppUser(GetAppUserDTO dto, OutputStream outputStream) {
         QueryWrapper<AuthUser> queryWrapper = new QueryWrapper<>();
         Optional.ofNullable(dto.getUsername()).ifPresent(s -> queryWrapper.like("username", s));
+        queryWrapper.eq("role", Role.USER);
         List<AuthUser> page = userMapper.selectList(queryWrapper);
         List<AppUserVO> result = page.stream().map(AppUserVO::assemble).collect(Collectors.toList());
         result.forEach(e -> {

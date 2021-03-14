@@ -8,6 +8,7 @@ import lombok.Data;
 import site.minnan.recordlife.domain.entity.TradeInfo;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 /**
  * 流水记录显示
@@ -34,6 +35,8 @@ public class TradeInfoVO {
 
     private String amounts;
 
+    private String remark;
+
     public static TradeInfoVO assemble(TradeInfo trade){
         return TradeInfoVO.builder()
                 .id(trade.getId())
@@ -43,6 +46,7 @@ public class TradeInfoVO {
                 .accountName(trade.getAccountName())
                 .amounts(trade.getAmount().toString())
                 .time(trade.getTime())
+                .remark(Optional.of(trade.getRemarks()).orElse(""))
                 .build();
     }
 }

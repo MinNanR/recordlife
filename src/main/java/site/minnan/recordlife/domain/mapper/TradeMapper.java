@@ -26,7 +26,7 @@ public interface TradeMapper extends BaseMapper<Trade> {
     List<CheckAccountResult> getUsingAccount(@Param("userId") Integer userId);
 
     @Select("select t1.id id, t2.name secondTypeName, t1.direction direction, t1.time time, " +
-            "t1.account_name accountName, amount amount " +
+            "t1.account_name accountName, amount amount, t1.remarks remarks " +
             "from record_trade t1 " +
             "left join dim_trade_type t2 on t1.second_type_id = t2.id " +
             "where t1.user_id = #{userId} and time between " +
